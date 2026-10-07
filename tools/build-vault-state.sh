@@ -11,6 +11,7 @@
 #   - Conventions, authoring rules, hard rules: CLAUDE.md (project root)
 #
 # Re-run after adding, moving, or renaming any SOP.
+# VAULT_AS_OF=YYYY-MM-DD reproduces a published snapshot; defaults to today (UTC).
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -18,6 +19,14 @@ cd "$(dirname "$0")/.."
 OUT=".omc/vault-state.md"
 WATCHLIST=".omc/watchlist.md"
 GAPS=".omc/gaps.md"
+
+today="${VAULT_AS_OF:-$(date -u +%Y-%m-%d)}"
+if [[ ! "$today" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] \
+  || ! as_of_epoch=$(date -u -d "$today" +%s 2>/dev/null) \
+  || [[ "$(date -u -d "@$as_of_epoch" +%Y-%m-%d)" != "$today" ]]; then
+  echo "Invalid VAULT_AS_OF: expected a calendar date in YYYY-MM-DD format." >&2
+  exit 1
+fi
 
 count_dir() {
   find "$1" -maxdepth 1 -name 'sop-*.md' -type f 2>/dev/null | wc -l
@@ -51,8 +60,6 @@ PENTEST_COUNT=$(count_dir "$PENTEST_DIR")
 INVESTIGATIONS_COUNT=$((PLATFORMS_COUNT + TECHNIQUES_COUNT))
 SECURITY_COUNT=$((ANALYSIS_COUNT + PENTEST_COUNT))
 TOTAL=$((INVESTIGATIONS_COUNT + SECURITY_COUNT))
-
-today=$(date +%Y-%m-%d)
 
 cat > "$OUT" <<EOF
 ---
@@ -161,7 +168,7 @@ status_rows() {
       if [[ -z "$oldest" ]]; then
         oldest="—"; age="—"; state="no source checks"
       else
-        age=$(( ( $(date +%s) - $(date -d "$oldest" +%s) ) / 86400 ))
+        age=$(( ( as_of_epoch - $(date -u -d "$oldest" +%s) ) / 86400 ))
         if   (( age <= CURRENT_DAYS )); then state="current"
         elif (( age <= OVERDUE_DAYS )); then state="review due"
         else                                state="overdue"
@@ -181,7 +188,7 @@ for dir in "$PLATFORMS_DIR" "$TECHNIQUES_DIR" "$ANALYSIS_DIR" "$PENTEST_DIR"; do
     if [[ -z "$oldest" ]]; then
       n_none=$((n_none + 1)); continue
     fi
-    age=$(( ( $(date +%s) - $(date -d "$oldest" +%s) ) / 86400 ))
+    age=$(( ( as_of_epoch - $(date -u -d "$oldest" +%s) ) / 86400 ))
     if   (( age <= CURRENT_DAYS )); then n_current=$((n_current + 1))
     elif (( age <= OVERDUE_DAYS )); then n_due=$((n_due + 1))
     else                                n_overdue=$((n_overdue + 1))

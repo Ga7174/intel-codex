@@ -103,7 +103,7 @@ For each platform where you find the username:
 6. **Confidence Assessment:** How confident are you that these accounts are linked? (Low/Medium/High)
 
 **Create:**
-- A brief entity profile (1-2 pages) using `Templates/entity-person.md` as a guide
+- A brief entity profile (1-2 pages) using the [Subject Profiles template](../../Case-Template/01-Subject-Profiles.md) as a guide
 - A timeline of account creation dates
 - A confidence rating for each finding
 
@@ -253,7 +253,7 @@ After completing the exercise, answer these reflection questions:
 - [Collection Logging SOP](../../../Investigations/Techniques/sop-collection-log.md)
 
 **Reference Material:**
-- [Entity Dossier Template](../../Templates/entity-person.md)
+- [Subject Profiles Template](../../Case-Template/01-Subject-Profiles.md)
 - [Example Investigation](../../2025-001-Example-Investigation/README.md)
 
 

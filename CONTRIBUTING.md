@@ -58,6 +58,19 @@ ObsidianVault/
 
 ## 🔍 Review Process
 
+### Local vault checks
+
+Run `./tools/check-vault.sh` to check the vault, then
+`./tools/build-vault-state.sh` to refresh the inventory, README counts, and
+verification report. Commit the generated files with your content changes.
+Run `bash tools/test-vault-state.sh` when changing snapshot generation.
+
+The generator uses today's UTC date by default. To reproduce a published
+report without advancing its date or verification ages, use
+`VAULT_AS_OF=YYYY-MM-DD ./tools/build-vault-state.sh` with the `generated:` date
+from `Verification-Status.md`. CI uses that recorded date to check for content
+drift; the lint check still evaluates source freshness against the current date.
+
 When you submit your PR, it will be reviewed by a maintainer. The review may include:
 
 - Checking markup/layout consistency  

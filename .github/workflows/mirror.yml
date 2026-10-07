@@ -7,6 +7,7 @@ on:
     branches: [main]
 jobs:
   codeberg:
+    if: github.repository == 'gl0bal01/intel-codex'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
