@@ -20,6 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Test snapshot generation
+        run: bash tools/test-vault-state.sh
+
       # tools/check-vault.sh: front-matter, Legal & Ethics cross-references,
       # stale [verify] markers, wikilink targets, count parity. Exits 1 on any.
       - name: Lint the vault
@@ -28,14 +31,16 @@ jobs:
           chmod +x tools/check-vault.sh
           ./tools/check-vault.sh
 
-      # A SOP added without re-running the generator leaves the published counts
-      # lying. Regenerate and fail if that produces a diff, so the contributor is
-      # told exactly which command to run rather than being guessed at in review.
+      # Reproduce the published snapshot at its recorded date. Using today's
+      # date would fail an unchanged checkout as the generation date and ages
+      # advance. The lint step still checks source freshness against today.
       - name: Generated counts are up to date
         run: |
           set -euo pipefail
           chmod +x tools/build-vault-state.sh
-          ./tools/build-vault-state.sh
+          as_of=$(sed -n 's/^generated: //p' Verification-Status.md)
+          : "${as_of:?Verification-Status.md is missing its generated date}"
+          VAULT_AS_OF="$as_of" ./tools/build-vault-state.sh
           if ! git diff --quiet; then
             echo "::error::Generated files are stale. Run ./tools/build-vault-state.sh and commit the result."
             git --no-pager diff --stat
